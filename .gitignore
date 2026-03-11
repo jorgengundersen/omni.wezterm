@@ -39,3 +39,7 @@ luac.out
 *.x86_64
 *.hex
 
+
+# Dolt database files (added by bd init)
+.dolt/
+*.db

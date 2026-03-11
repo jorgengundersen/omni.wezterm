@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "server",
+  "dolt_database": "omni_wezterm",
+  "project_id": "68505630-f4b4-45f2-b164-d99821c01f2e"
+}
