@@ -1,0 +1,5 @@
+pre-commit:
+  parallel: true
+  commands:
+    beads:
+      run: bd hooks run pre-commit
