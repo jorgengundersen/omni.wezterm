@@ -25,7 +25,7 @@ omni.wezterm/
         self.lua          -- self scanner
       workspace.lua       -- Workspace name derivation and switching logic
       ui.lua              -- InputSelector construction
-      path.lua            -- Path utilities (expand ~, basename, is_dir, etc.)
+      path.lua            -- Path utilities (expand ~, env vars, basename, etc.)
   spec/
     omni/
       config_spec.lua
@@ -68,7 +68,7 @@ Modules").
 
 - Exports `apply_to_config(config, opts?)` as the plugin's public API
 - Loads configuration (TOML or inline)
-- Registers a keybinding that triggers the project selector
+- Registers keybindings for project selector and active workspace selector
 - Wires together config -> discovery -> UI -> workspace switching
 
 ### `omni.config`
@@ -77,6 +77,8 @@ Modules").
 - `default() -> omni.Config` -- returns sensible defaults
 - `merge(defaults, overrides) -> omni.Config` -- merges configs
 - Uses `wezterm.serde.toml_decode` and file I/O to read the TOML file
+- **Fail-fast**: TOML parse errors and validation errors raise immediately
+  (see Error Handling section)
 
 ### `omni.discovery`
 
@@ -84,6 +86,7 @@ Modules").
   and returns a deduplicated, sorted list
 - Iterates over `config.sources`, dispatches to the appropriate scanner,
   collects and deduplicates results
+- Sorting is case-sensitive ASCII (standard string comparison)
 
 ### `omni.scanners.*`
 
@@ -101,21 +104,27 @@ side effects.
 
 ### `omni.workspace`
 
-- `derive_name(path) -> string` -- derives a workspace name from a path
+- `derive_name(label) -> string` -- derives a workspace name from a label
+  by replacing dots with underscores
+- `list_active() -> string[]` -- returns active workspace names from mux API
 - `switch_or_create(window, pane, path, name)` -- switches to an existing
   workspace or creates a new one with the given cwd
+- `switch_to(window, pane, name)` -- switches to an existing workspace by name
 
 ### `omni.ui`
 
 - `build_choices(entries) -> InputSelector.choices[]` -- converts project
   entries to InputSelector choice format
+- `build_workspace_choices(names) -> InputSelector.choices[]` -- converts
+  workspace names to InputSelector choice format
 - `show_selector(window, pane, choices, callback)` -- triggers the
   InputSelector overlay
 
 ### `omni.path`
 
 Pure utility functions:
-- `expand(path) -> string` -- expands `~` to home directory
+- `expand(path) -> string` -- expands `~` to home directory and `$VAR` /
+  `${VAR}` environment variables
 - `basename(path) -> string` -- returns last path component
 - `is_directory(path) -> boolean` -- checks if path is a directory
 - `relative(path, base) -> string` -- makes path relative to base
@@ -152,10 +161,38 @@ local fake_fs = {
 
 ### Error Handling
 
-- Scanner errors (missing paths, permission denied) are caught and logged
-  via `wezterm.log_warn`, never crashing the plugin
-- Config errors produce clear error messages and fall back to defaults
-- The plugin should always be usable even if some sources fail
+The plugin follows a **fail-fast** strategy with two severity levels:
+
+#### Hard Errors (fail immediately)
+
+These stop execution and surface the error via `wezterm.log_error` **and**
+a WezTerm toast notification (`window:toast_notification`) so the user is
+immediately aware:
+
+- TOML config file exists but has syntax errors
+- A source entry has an unknown `type` (not one of `git_repos`, `children`,
+  `grandchildren`, `self`)
+- A source entry is missing required fields (`path` or `type`)
+- A required field has the wrong type (e.g., `path` is a number)
+
+Error messages include:
+- The config file path
+- The source index (e.g., "source #3")
+- The field name and expected vs actual value
+- Example: `"omni.wezterm: config error in source #3: unknown type 'foobar' (expected git_repos|children|grandchildren|self)"`
+
+#### Soft Warnings (log and continue)
+
+These are logged via `wezterm.log_warn` and the affected source is skipped.
+The plugin continues processing remaining sources:
+
+- Config file does not exist (logged via `wezterm.log_info`, uses empty
+  sources -- user may not have created it yet)
+- A configured path does not exist on disk (supports multi-machine configs)
+- An environment variable in a path does not resolve
+- A scanner returns zero entries for a valid path
+- `wezterm.run_child_process` returns a non-zero exit code (the scanner
+  logs the error and returns an empty list)
 
 ## Public API
 
@@ -166,38 +203,62 @@ The plugin exposes exactly one public function:
 ---@param opts? table      Plugin options
 ---  opts.key: string      Keybinding key (default: "p")
 ---  opts.mods: string     Keybinding modifiers (default: "CTRL|SHIFT")
+---  opts.active_key: string   Active workspace selector key (default: "s")
+---  opts.active_mods: string  Active selector modifiers (default: "CTRL|SHIFT")
 ---  opts.config_file: string  Path to TOML config (default: ~/.config/omni/config.toml)
 ---  opts.title: string    InputSelector title (default: "Switch Project")
 ---  opts.fuzzy: boolean   Start in fuzzy mode (default: true)
+---  opts.active_title: string   Active selector title (default: "Switch Workspace")
+---  opts.active_fuzzy: boolean  Active selector fuzzy mode (default: true)
 function M.apply_to_config(config, opts) end
 ```
+
+### Idempotency
+
+`apply_to_config` must be safe to call only once. If called multiple times,
+it must not register duplicate keybindings. The implementation should track
+whether it has already been applied (e.g., via a flag on the config table
+or in a module-level variable) and skip registration on subsequent calls.
+
+```lua
+-- Guard against double registration
+if config._omni_applied then
+  wezterm.log_warn("omni.wezterm: apply_to_config called more than once, skipping")
+  return
+end
+config._omni_applied = true
+```
+
+### Behavior
 
 `apply_to_config` appends a key binding to `config.keys` that, when triggered:
 1. Loads/refreshes the TOML config
 2. Runs discovery to get the project list
 3. Shows the InputSelector
 4. On selection, switches to or creates the workspace
+5. On cancellation (Escape), does nothing silently
 
-## Caching Strategy
+`apply_to_config` also appends an active workspace key binding that, when
+triggered:
+1. Reads active workspace names from the mux API
+2. Builds and shows an InputSelector over active names
+3. On selection, switches to that workspace
+4. On cancellation (Escape), does nothing silently
 
-Directory discovery can be expensive (especially `git_repos`). The plugin uses
-`wezterm.GLOBAL` to cache results:
+**Note**: This plugin only works with the default key table (`config.keys`).
+Users who use WezTerm's `key_tables` for modal keybindings will need to
+register the actions manually.
 
-```lua
-wezterm.GLOBAL.omni_cache = {
-  entries = { ... },       -- cached project entries
-  timestamp = 1234567890,  -- when the cache was built
-}
-```
+## Future Optimizations (Not in v1)
 
-Cache is invalidated:
-- After a configurable TTL (default: 300 seconds / 5 minutes)
-- When the user explicitly refreshes (optional future feature)
-- On WezTerm config reload
+- **Caching**: Directory discovery results could be cached in
+  `wezterm.GLOBAL` with a TTL to avoid re-scanning on every selector
+  invocation. Deferred until performance is measured and found lacking.
+  When implemented, `wezterm.GLOBAL` writes should be atomic (replace
+  the whole table rather than mutating in place) since it is shared
+  across all callbacks.
 
 ## Thread Safety
 
 WezTerm's Lua runs single-threaded per event callback. No concurrent access
-concerns within a single callback. However, `wezterm.GLOBAL` is shared across
-all callbacks, so cache reads/writes should be atomic (replace the whole table
-rather than mutating in place).
+concerns within a single callback.
