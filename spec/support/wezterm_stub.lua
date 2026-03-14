@@ -4,6 +4,9 @@ local wez = {}
 wez._filesystem = {}
 wez._logs = {}
 wez._child_process_responses = {}
+wez._workspace_names = {}
+wez._performed_actions = {}
+wez._toasts = {}
 wez.target_triple = "x86_64-unknown-linux-gnu"
 
 function wez._reset()
@@ -11,7 +14,27 @@ function wez._reset()
   wez._files = {}
   wez._logs = {}
   wez._child_process_responses = {}
+  wez._workspace_names = {}
+  wez._performed_actions = {}
+  wez._toasts = {}
   wez.target_triple = "x86_64-unknown-linux-gnu"
+end
+
+wez.mux = {}
+
+function wez.mux.get_workspace_names()
+  return wez._workspace_names
+end
+
+function wez._mock_window()
+  local win = {}
+  function win:perform_action(action, pane) -- luacheck: no unused args
+    wez._performed_actions[#wez._performed_actions + 1] = { action = action, pane = pane }
+  end
+  function win:toast_notification(title, message) -- luacheck: no unused args
+    wez._toasts[#wez._toasts + 1] = { title = title, message = message }
+  end
+  return win
 end
 
 function wez.run_child_process(args)
