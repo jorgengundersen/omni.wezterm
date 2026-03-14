@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Lua 5.4
+        uses: leafo/gh-actions-lua@v11
+        with:
+          luaVersion: "5.4"
+
+      - name: Install LuaRocks
+        uses: leafo/gh-actions-luarocks@v4
+
+      - name: Cache LuaRocks packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.luarocks
+          key: ${{ runner.os }}-luarocks-${{ hashFiles('*.rockspec', '.luacheckrc') }}
+          restore-keys: |
+            ${{ runner.os }}-luarocks-
+
+      - name: Install dependencies
+        run: |
+          luarocks install busted
+          luarocks install luacheck
+
+      - name: Install StyLua
+        run: |
+          curl -L -o stylua.zip https://github.com/JohnnyMorganz/StyLua/releases/download/v2.0.2/stylua-linux-x86_64.zip
+          unzip stylua.zip -d /usr/local/bin
+          chmod +x /usr/local/bin/stylua
+
+      - name: Lint
+        run: luacheck lua/ spec/
+
+      - name: Check formatting
+        run: stylua --check lua/ spec/
+
+      - name: Test
+        run: busted spec/
