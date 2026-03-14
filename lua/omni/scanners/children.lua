@@ -1,0 +1,35 @@
+local path = require("omni.path")
+local scanners = require("omni.scanners")
+
+local M = {}
+
+function M.scan(source)
+  local dir = wezterm.read_dir(source.path)
+  if dir == nil then
+    wezterm.log_warn(
+      string.format("omni.wezterm: source path '%s' does not exist, skipping", source.path)
+    )
+    return {}
+  end
+
+  local source_basename = path.basename(source.path)
+  local entries = {}
+
+  for _, child_path in ipairs(dir) do
+    local child_dir = wezterm.read_dir(child_path)
+    if child_dir ~= nil then
+      local label = source_basename .. "/" .. path.basename(child_path)
+      entries[#entries + 1] = {
+        id = child_path,
+        label = label,
+        workspace_name = label:gsub("%.", "_"),
+      }
+    end
+  end
+
+  return entries
+end
+
+scanners.register("children", M)
+
+return M
