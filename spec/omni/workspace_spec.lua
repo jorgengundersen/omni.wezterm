@@ -1,0 +1,6 @@
+describe("omni.workspace", function()
+  it("loads and returns a table", function()
+    local workspace = require("omni.workspace")
+    assert.is_table(workspace)
+  end)
+end)

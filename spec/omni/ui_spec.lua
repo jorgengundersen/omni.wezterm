@@ -1,0 +1,6 @@
+describe("omni.ui", function()
+  it("loads and returns a table", function()
+    local ui = require("omni.ui")
+    assert.is_table(ui)
+  end)
+end)

@@ -1,0 +1,6 @@
+describe("omni.config", function()
+  it("loads and returns a table", function()
+    local config = require("omni.config")
+    assert.is_table(config)
+  end)
+end)
