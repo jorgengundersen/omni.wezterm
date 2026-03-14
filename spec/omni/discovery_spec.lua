@@ -106,9 +106,12 @@ describe("omni.discovery", function()
           { path = "/tmp", type = "bad" },
         },
       }
-      assert.has_error(function()
-        discovery.discover(config)
-      end, "omni.wezterm: scanner 'bad' returned invalid entry #1: field 'id' must be a string, got number")
+      assert.has_error(
+        function()
+          discovery.discover(config)
+        end,
+        "omni.wezterm: scanner 'bad' returned invalid entry #1: field 'id' must be a string, got number"
+      )
     end)
   end)
 end)

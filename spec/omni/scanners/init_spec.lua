@@ -42,9 +42,12 @@ describe("omni.scanners", function()
         end,
       })
 
-      assert.has_error(function()
-        scanners.dispatch({ type = "bad_missing", path = "/tmp" })
-      end, "omni.wezterm: scanner 'bad_missing' returned invalid entry #1: missing field 'workspace_name'")
+      assert.has_error(
+        function()
+          scanners.dispatch({ type = "bad_missing", path = "/tmp" })
+        end,
+        "omni.wezterm: scanner 'bad_missing' returned invalid entry #1: missing field 'workspace_name'"
+      )
     end)
 
     it("raises error when field has wrong type", function()
@@ -56,9 +59,12 @@ describe("omni.scanners", function()
         end,
       })
 
-      assert.has_error(function()
-        scanners.dispatch({ type = "bad_type", path = "/tmp" })
-      end, "omni.wezterm: scanner 'bad_type' returned invalid entry #1: field 'id' must be a string, got number")
+      assert.has_error(
+        function()
+          scanners.dispatch({ type = "bad_type", path = "/tmp" })
+        end,
+        "omni.wezterm: scanner 'bad_type' returned invalid entry #1: field 'id' must be a string, got number"
+      )
     end)
 
     it("validates all entries, not just the first", function()
@@ -71,9 +77,12 @@ describe("omni.scanners", function()
         end,
       })
 
-      assert.has_error(function()
-        scanners.dispatch({ type = "bad_second", path = "/tmp" })
-      end, "omni.wezterm: scanner 'bad_second' returned invalid entry #2: missing field 'workspace_name'")
+      assert.has_error(
+        function()
+          scanners.dispatch({ type = "bad_second", path = "/tmp" })
+        end,
+        "omni.wezterm: scanner 'bad_second' returned invalid entry #2: missing field 'workspace_name'"
+      )
     end)
   end)
 end)

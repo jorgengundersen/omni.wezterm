@@ -1,0 +1,1 @@
+-- spec_helper.lua: loaded automatically by busted via .busted config
