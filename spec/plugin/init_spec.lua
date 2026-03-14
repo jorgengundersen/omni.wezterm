@@ -1,0 +1,7 @@
+describe("plugin entry point", function()
+  it("returns the omni module with apply_to_config", function()
+    local plugin = dofile("plugin/init.lua")
+    assert.is_table(plugin)
+    assert.is_function(plugin.apply_to_config)
+  end)
+end)
