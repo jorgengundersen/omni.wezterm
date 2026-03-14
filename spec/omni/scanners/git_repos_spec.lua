@@ -128,6 +128,94 @@ describe("omni.scanners.git_repos", function()
       assert.are.equal(1, #entries)
     end)
 
+    describe("windows fallback", function()
+      before_each(function()
+        wezterm.target_triple = "x86_64-pc-windows-msvc"
+        package.loaded["omni.scanners.git_repos"] = nil
+        git_repos_scanner = require("omni.scanners.git_repos")
+      end)
+
+      it("uses read_dir walk instead of find on Windows", function()
+        wezterm._filesystem = {
+          ["C:/Users/dev/projects"] = {
+            "C:/Users/dev/projects/app-a",
+            "C:/Users/dev/projects/app-b",
+          },
+          ["C:/Users/dev/projects/app-a"] = {
+            "C:/Users/dev/projects/app-a/.git",
+            "C:/Users/dev/projects/app-a/src",
+          },
+          ["C:/Users/dev/projects/app-a/.git"] = {},
+          ["C:/Users/dev/projects/app-a/src"] = {},
+          ["C:/Users/dev/projects/app-b"] = {
+            "C:/Users/dev/projects/app-b/.git",
+          },
+          ["C:/Users/dev/projects/app-b/.git"] = {},
+        }
+
+        local entries = git_repos_scanner.scan({
+          path = "C:/Users/dev/projects",
+          type = "git_repos",
+          max_depth = 3,
+        })
+
+        assert.are.equal(2, #entries)
+        assert.are.equal("C:/Users/dev/projects/app-a", entries[1].id)
+        assert.are.equal("projects/app-a", entries[1].label)
+        assert.are.equal("projects/app-a", entries[1].workspace_name)
+        assert.are.equal("C:/Users/dev/projects/app-b", entries[2].id)
+        assert.are.equal("projects/app-b", entries[2].label)
+        assert.are.equal("projects/app-b", entries[2].workspace_name)
+      end)
+      it("respects max_depth and does not descend beyond it", function()
+        -- .git at depth 2 (projects/shallow/.git) → found with max_depth 2
+        -- .git at depth 3 (projects/org/deep/.git) → NOT found with max_depth 2
+        wezterm._filesystem = {
+          ["C:/projects"] = { "C:/projects/shallow", "C:/projects/org" },
+          ["C:/projects/shallow"] = { "C:/projects/shallow/.git" },
+          ["C:/projects/shallow/.git"] = {},
+          ["C:/projects/org"] = { "C:/projects/org/deep" },
+          ["C:/projects/org/deep"] = { "C:/projects/org/deep/.git" },
+          ["C:/projects/org/deep/.git"] = {},
+        }
+
+        local entries = git_repos_scanner.scan({
+          path = "C:/projects",
+          type = "git_repos",
+          max_depth = 2,
+        })
+
+        assert.are.equal(1, #entries)
+        assert.are.equal("C:/projects/shallow", entries[1].id)
+      end)
+
+      it("workspace_name has dots replaced with underscores", function()
+        wezterm._filesystem = {
+          ["C:/projects"] = { "C:/projects/my.dotted.project" },
+          ["C:/projects/my.dotted.project"] = { "C:/projects/my.dotted.project/.git" },
+          ["C:/projects/my.dotted.project/.git"] = {},
+        }
+
+        local entries = git_repos_scanner.scan({
+          path = "C:/projects",
+          type = "git_repos",
+        })
+
+        assert.are.equal("projects/my.dotted.project", entries[1].label)
+        assert.are.equal("projects/my_dotted_project", entries[1].workspace_name)
+      end)
+
+      it("returns empty table when read_dir returns nil", function()
+        -- No filesystem entries stubbed → read_dir returns nil
+        local entries = git_repos_scanner.scan({
+          path = "C:/nonexistent",
+          type = "git_repos",
+        })
+
+        assert.are.same({}, entries)
+      end)
+    end)
+
     it("is registered in scanner registry as 'git_repos'", function()
       local scanners = require("omni.scanners")
       wezterm._child_process_responses["find"] = {
