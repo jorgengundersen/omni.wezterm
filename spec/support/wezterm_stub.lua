@@ -27,7 +27,7 @@ function wez.log_error(msg)
 end
 
 function wez.read_dir(path)
-  return wez._filesystem[path] or {}
+  return wez._filesystem[path]
 end
 
 wez._files = {}

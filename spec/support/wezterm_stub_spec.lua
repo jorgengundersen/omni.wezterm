@@ -43,8 +43,14 @@ describe("wezterm_stub", function()
       assert.same({ "alpha", "beta" }, entries)
     end)
 
-    it("returns empty table for unknown paths", function()
+    it("returns nil for unregistered paths", function()
       local entries = wez.read_dir("/nonexistent")
+      assert.is_nil(entries)
+    end)
+
+    it("returns empty table for registered-but-empty paths", function()
+      wez._filesystem["/empty"] = {}
+      local entries = wez.read_dir("/empty")
       assert.same({}, entries)
     end)
   end)
