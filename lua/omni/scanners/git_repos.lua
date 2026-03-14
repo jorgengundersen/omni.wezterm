@@ -1,5 +1,4 @@
 local path = require("omni.path")
-local scanners = require("omni.scanners")
 
 local M = {}
 
@@ -48,7 +47,5 @@ function M.scan(source)
 
   return entries
 end
-
-scanners.register("git_repos", M)
 
 return M

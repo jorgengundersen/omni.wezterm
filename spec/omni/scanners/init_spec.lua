@@ -85,4 +85,46 @@ describe("omni.scanners", function()
       )
     end)
   end)
+
+  describe("auto-registration", function()
+    before_each(function()
+      -- Clear all scanner modules so they re-register on require
+      package.loaded["omni.scanners"] = nil
+      package.loaded["omni.scanners.self"] = nil
+      package.loaded["omni.scanners.children"] = nil
+      package.loaded["omni.scanners.grandchildren"] = nil
+      package.loaded["omni.scanners.git_repos"] = nil
+      wezterm._reset()
+      scanners = require("omni.scanners")
+    end)
+
+    it("registers self, children, grandchildren, and git_repos on load", function()
+      -- self scanner: just needs read_dir to return non-nil
+      wezterm._filesystem["/tmp/project"] = {}
+      local self_result = scanners.dispatch({ type = "self", path = "/tmp/project" })
+      assert.are.equal(1, #self_result)
+      assert.are.equal("/tmp/project", self_result[1].id)
+
+      -- children scanner: needs read_dir to return child paths, each also readable
+      wezterm._filesystem["/tmp/parent"] = { "/tmp/parent/child-a" }
+      wezterm._filesystem["/tmp/parent/child-a"] = {}
+      local children_result = scanners.dispatch({ type = "children", path = "/tmp/parent" })
+      assert.are.equal(1, #children_result)
+      assert.are.equal("/tmp/parent/child-a", children_result[1].id)
+
+      -- grandchildren scanner
+      wezterm._filesystem["/tmp/root"] = { "/tmp/root/group" }
+      wezterm._filesystem["/tmp/root/group"] = { "/tmp/root/group/proj" }
+      wezterm._filesystem["/tmp/root/group/proj"] = {}
+      local gc_result = scanners.dispatch({ type = "grandchildren", path = "/tmp/root" })
+      assert.are.equal(1, #gc_result)
+      assert.are.equal("/tmp/root/group/proj", gc_result[1].id)
+
+      -- git_repos scanner: needs run_child_process
+      wezterm._child_process_responses["find"] = { true, "/tmp/repos/myproject/.git\n", "" }
+      local git_result = scanners.dispatch({ type = "git_repos", path = "/tmp/repos" })
+      assert.are.equal(1, #git_result)
+      assert.are.equal("/tmp/repos/myproject", git_result[1].id)
+    end)
+  end)
 end)

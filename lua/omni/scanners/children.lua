@@ -1,5 +1,4 @@
 local path = require("omni.path")
-local scanners = require("omni.scanners")
 
 local M = {}
 
@@ -29,7 +28,5 @@ function M.scan(source)
 
   return entries
 end
-
-scanners.register("children", M)
 
 return M
