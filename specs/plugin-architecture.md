@@ -64,14 +64,18 @@ Modules").
 
 ## Module Responsibilities
 
-### `omni.init` (main module)
+> **Orchestration** modules decide flow and sequence work.
+> **Primitive** modules transform data and return output — no opinions on what happens next.
+> Keep them separate. A module labelled *composed primitive* combines other primitives' results but still doesn't decide what to do with them.
+
+### `omni.init` (main module) `[orchestration]`
 
 - Exports `apply_to_config(config, opts?)` as the plugin's public API
 - Loads configuration (TOML or inline)
 - Registers keybindings for project selector and active workspace selector
 - Wires together config -> discovery -> UI -> workspace switching
 
-### `omni.config`
+### `omni.config` `[primitive]`
 
 - `load(path?) -> omni.Config` -- loads and validates TOML config
 - `default() -> omni.Config` -- returns sensible defaults
@@ -80,7 +84,7 @@ Modules").
 - **Fail-fast**: TOML parse errors and validation errors raise immediately
   (see Error Handling section)
 
-### `omni.discovery`
+### `omni.discovery` `[primitive]` *(composed)*
 
 - `discover(config) -> omni.ProjectEntry[]` -- runs all configured scanners
   and returns a deduplicated, sorted list
@@ -88,7 +92,7 @@ Modules").
   collects and deduplicates results
 - Sorting is case-sensitive ASCII (standard string comparison)
 
-### `omni.scanners.*`
+### `omni.scanners.*` `[primitive]`
 
 Each scanner module exports a single function:
 
@@ -102,7 +106,7 @@ Scanners are pure functions over the filesystem. They depend on
 `wezterm.read_dir` or `wezterm.run_child_process` but have no other
 side effects.
 
-### `omni.workspace`
+### `omni.workspace` `[primitive]`
 
 - `derive_name(label) -> string` -- derives a workspace name from a label
   by replacing dots with underscores
@@ -111,7 +115,7 @@ side effects.
   workspace or creates a new one with the given cwd
 - `switch_to(window, pane, name)` -- switches to an existing workspace by name
 
-### `omni.ui`
+### `omni.ui` `[primitive]`
 
 - `build_choices(entries) -> InputSelector.choices[]` -- converts project
   entries to InputSelector choice format
@@ -120,7 +124,7 @@ side effects.
 - `show_selector(window, pane, choices, callback)` -- triggers the
   InputSelector overlay
 
-### `omni.path`
+### `omni.path` `[primitive]`
 
 Pure utility functions:
 - `expand(path) -> string` -- expands `~` to home directory and `$VAR` /
