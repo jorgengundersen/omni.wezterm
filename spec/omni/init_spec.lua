@@ -26,6 +26,14 @@ describe("omni", function()
       assert.equals(2, #config.keys)
     end)
 
+    it("creates config.keys table if missing", function()
+      local config = {}
+      assert.is_nil(config.keys)
+      omni.apply_to_config(config)
+      assert.is_table(config.keys)
+      assert.equals(2, #config.keys)
+    end)
+
     it("appends to existing config.keys without overwriting", function()
       local config = {
         keys = {
