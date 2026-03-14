@@ -3,11 +3,24 @@ local wez = {}
 
 wez._filesystem = {}
 wez._logs = {}
+wez._child_process_responses = {}
+wez.target_triple = "x86_64-unknown-linux-gnu"
 
 function wez._reset()
   wez._filesystem = {}
   wez._files = {}
   wez._logs = {}
+  wez._child_process_responses = {}
+  wez.target_triple = "x86_64-unknown-linux-gnu"
+end
+
+function wez.run_child_process(args)
+  local key = args[1]
+  local response = wez._child_process_responses[key]
+  if response then
+    return response[1], response[2], response[3]
+  end
+  return false, "", ""
 end
 
 function wez.home_dir()

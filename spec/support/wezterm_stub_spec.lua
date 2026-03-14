@@ -78,6 +78,48 @@ describe("wezterm_stub", function()
     end)
   end)
 
+  describe("target_triple", function()
+    it("defaults to linux triple", function()
+      assert.equal("x86_64-unknown-linux-gnu", wez.target_triple)
+    end)
+
+    it("is configurable per test", function()
+      wez.target_triple = "x86_64-pc-windows-msvc"
+      assert.equal("x86_64-pc-windows-msvc", wez.target_triple)
+    end)
+
+    it("resets to default after _reset", function()
+      wez.target_triple = "aarch64-apple-darwin"
+      wez._reset()
+      assert.equal("x86_64-unknown-linux-gnu", wez.target_triple)
+    end)
+  end)
+
+  describe("run_child_process", function()
+    it("returns default response when no responses configured", function()
+      local success, stdout, stderr = wez.run_child_process({ "find", "/tmp" })
+      assert.is_false(success)
+      assert.equal("", stdout)
+      assert.equal("", stderr)
+    end)
+
+    it("returns configured response keyed by first arg", function()
+      wez._child_process_responses["find"] = { true, "/tmp/project\n", "" }
+      local success, stdout, stderr = wez.run_child_process({ "find", "/tmp" })
+      assert.is_true(success)
+      assert.equal("/tmp/project\n", stdout)
+      assert.equal("", stderr)
+    end)
+
+    it("returns default response for unconfigured commands", function()
+      wez._child_process_responses["git"] = { true, "output", "" }
+      local success, stdout, stderr = wez.run_child_process({ "find", "/tmp" })
+      assert.is_false(success)
+      assert.equal("", stdout)
+      assert.equal("", stderr)
+    end)
+  end)
+
   describe("_reset", function()
     it("clears _filesystem and _logs", function()
       wez._filesystem["/foo"] = { "bar" }
@@ -85,6 +127,12 @@ describe("wezterm_stub", function()
       wez._reset()
       assert.same({}, wez._filesystem)
       assert.same({}, wez._logs)
+    end)
+
+    it("clears child process responses", function()
+      wez._child_process_responses["find"] = { true, "output", "" }
+      wez._reset()
+      assert.same({}, wez._child_process_responses)
     end)
   end)
 end)
