@@ -6,6 +6,7 @@ wez._logs = {}
 
 function wez._reset()
   wez._filesystem = {}
+  wez._files = {}
   wez._logs = {}
 end
 
@@ -27,6 +28,23 @@ end
 
 function wez.read_dir(path)
   return wez._filesystem[path] or {}
+end
+
+wez._files = {}
+
+function wez.read_file(path)
+  local content = wez._files[path]
+  if content == nil then
+    return nil
+  end
+  return content
+end
+
+wez.serde = {}
+
+function wez.serde.toml_decode(_str)
+  -- Stub: tests should override this per-test via spy/stub
+  error("wezterm.serde.toml_decode not stubbed for this input")
 end
 
 wez.action = {}
