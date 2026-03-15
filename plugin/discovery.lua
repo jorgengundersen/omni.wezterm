@@ -1,5 +1,4 @@
-local ROOT = (...):match("^(.-)%.") or ...
-local scanners = require(ROOT .. ".scanners")
+local scanners = require("scanners")
 
 local M = {}
 

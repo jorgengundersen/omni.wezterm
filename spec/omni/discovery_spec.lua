@@ -1,14 +1,14 @@
-describe("plugin.discovery", function()
+describe("discovery", function()
   local discovery
   local scanners
 
   before_each(function()
     -- Clear both modules so discovery gets a fresh scanners instance
-    package.loaded["plugin.scanners"] = nil
-    package.loaded["plugin.discovery"] = nil
+    package.loaded["scanners"] = nil
+    package.loaded["discovery"] = nil
 
-    scanners = require("plugin.scanners")
-    discovery = require("plugin.discovery")
+    scanners = require("scanners")
+    discovery = require("discovery")
   end)
 
   describe("discover", function()

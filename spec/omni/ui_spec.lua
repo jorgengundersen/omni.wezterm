@@ -1,9 +1,9 @@
-describe("plugin.ui", function()
+describe("ui", function()
   local ui
 
   before_each(function()
-    package.loaded["plugin.ui"] = nil
-    ui = require("plugin.ui")
+    package.loaded["ui"] = nil
+    ui = require("ui")
   end)
 
   describe("build_choices", function()

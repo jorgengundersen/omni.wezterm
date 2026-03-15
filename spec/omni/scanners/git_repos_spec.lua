@@ -1,13 +1,13 @@
-describe("plugin.scanners.git_repos", function()
+describe("scanners.git_repos", function()
   local git_repos_scanner
   local orig_run_child_process
 
   before_each(function()
-    package.loaded["plugin.scanners.git_repos"] = nil
-    package.loaded["plugin.scanners"] = nil
+    package.loaded["scanners.git_repos"] = nil
+    package.loaded["scanners"] = nil
     wezterm._reset()
     orig_run_child_process = wezterm.run_child_process
-    git_repos_scanner = require("plugin.scanners.git_repos")
+    git_repos_scanner = require("scanners.git_repos")
   end)
 
   after_each(function()
@@ -131,8 +131,8 @@ describe("plugin.scanners.git_repos", function()
     describe("windows fallback", function()
       before_each(function()
         wezterm.target_triple = "x86_64-pc-windows-msvc"
-        package.loaded["plugin.scanners.git_repos"] = nil
-        git_repos_scanner = require("plugin.scanners.git_repos")
+        package.loaded["scanners.git_repos"] = nil
+        git_repos_scanner = require("scanners.git_repos")
       end)
 
       it("uses read_dir walk instead of find on Windows", function()
@@ -217,7 +217,7 @@ describe("plugin.scanners.git_repos", function()
     end)
 
     it("is registered in scanner registry as 'git_repos'", function()
-      local scanners = require("plugin.scanners")
+      local scanners = require("scanners")
       wezterm._child_process_responses["find"] = {
         true,
         "/tmp/test/repo/.git\n",

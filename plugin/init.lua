@@ -1,10 +1,32 @@
 local wezterm = _G.wezterm
-local ROOT = (...):match("^(.-)%.") or ...
+local plugin_name = ...
+local sep = package.config:sub(1, 1)
 
-local config_mod = require(ROOT .. ".config")
-local discovery = require(ROOT .. ".discovery")
-local ui = require(ROOT .. ".ui")
-local workspace = require(ROOT .. ".workspace")
+-- Find our plugin directory by substituting our module name into
+-- each package.path template and looking for one that resolves to
+-- .../plugin/init.lua (our own entry point).
+for template in package.path:gmatch("[^;]+") do
+  local resolved = template:gsub("%?", (plugin_name:gsub("%%", "%%%%")))
+  local mod_dir = resolved:match("^(.+[/\\]plugin)[/\\]init%.lua$")
+    or resolved:match("^(plugin)[/\\]init%.lua$")
+  if mod_dir then
+    package.path = mod_dir
+      .. sep
+      .. "?.lua;"
+      .. mod_dir
+      .. sep
+      .. "?"
+      .. sep
+      .. "init.lua;"
+      .. package.path
+    break
+  end
+end
+
+local config_mod = require("config")
+local discovery = require("discovery")
+local ui = require("ui")
+local workspace = require("workspace")
 
 local M = {}
 

@@ -1,10 +1,21 @@
 describe("plugin entry point", function()
   before_each(function()
-    -- Clear all plugin modules for a fresh require
-    for key, _ in pairs(package.loaded) do
-      if key:match("^plugin") then
-        package.loaded[key] = nil
-      end
+    -- Clear all modules that live under plugin/
+    local plugin_modules = {
+      "plugin",
+      "config",
+      "discovery",
+      "ui",
+      "workspace",
+      "path",
+      "scanners",
+      "scanners.self",
+      "scanners.children",
+      "scanners.grandchildren",
+      "scanners.git_repos",
+    }
+    for _, mod in ipairs(plugin_modules) do
+      package.loaded[mod] = nil
     end
     wezterm._reset()
   end)

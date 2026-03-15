@@ -1,10 +1,10 @@
-describe("plugin.config", function()
+describe("config", function()
   local config
 
   before_each(function()
-    package.loaded["plugin.config"] = nil
+    package.loaded["config"] = nil
     wezterm._reset()
-    config = require("plugin.config")
+    config = require("config")
   end)
 
   describe("validate", function()

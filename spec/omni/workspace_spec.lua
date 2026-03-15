@@ -1,10 +1,10 @@
-describe("plugin.workspace", function()
+describe("workspace", function()
   local workspace
 
   before_each(function()
-    package.loaded["plugin.workspace"] = nil
+    package.loaded["workspace"] = nil
     wezterm._reset()
-    workspace = require("plugin.workspace")
+    workspace = require("workspace")
   end)
 
   describe("derive_name", function()

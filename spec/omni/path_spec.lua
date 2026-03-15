@@ -1,9 +1,9 @@
-describe("plugin.path", function()
+describe("path", function()
   local path
 
   before_each(function()
-    package.loaded["plugin.path"] = nil
-    path = require("plugin.path")
+    package.loaded["path"] = nil
+    path = require("path")
   end)
 
   describe("basename", function()

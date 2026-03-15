@@ -1,5 +1,4 @@
-local ROOT = (...):match("^(.-)%.") or ...
-local path = require(ROOT .. ".path")
+local path = require("path")
 
 local M = {}
 

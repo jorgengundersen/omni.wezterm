@@ -1,11 +1,11 @@
-describe("plugin.scanners.grandchildren", function()
+describe("scanners.grandchildren", function()
   local grandchildren_scanner
 
   before_each(function()
-    package.loaded["plugin.scanners.grandchildren"] = nil
-    package.loaded["plugin.scanners"] = nil
+    package.loaded["scanners.grandchildren"] = nil
+    package.loaded["scanners"] = nil
     wezterm._reset()
-    grandchildren_scanner = require("plugin.scanners.grandchildren")
+    grandchildren_scanner = require("scanners.grandchildren")
   end)
 
   describe("scan", function()
@@ -129,7 +129,7 @@ describe("plugin.scanners.grandchildren", function()
     end)
 
     it("is registered in scanner registry as 'grandchildren'", function()
-      local scanners = require("plugin.scanners")
+      local scanners = require("scanners")
       wezterm._filesystem["/tmp/test"] = { "/tmp/test/group" }
       wezterm._filesystem["/tmp/test/group"] = { "/tmp/test/group/child" }
       wezterm._filesystem["/tmp/test/group/child"] = {}

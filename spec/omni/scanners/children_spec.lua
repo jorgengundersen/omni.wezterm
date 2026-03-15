@@ -1,11 +1,11 @@
-describe("plugin.scanners.children", function()
+describe("scanners.children", function()
   local children_scanner
 
   before_each(function()
-    package.loaded["plugin.scanners.children"] = nil
-    package.loaded["plugin.scanners"] = nil
+    package.loaded["scanners.children"] = nil
+    package.loaded["scanners"] = nil
     wezterm._reset()
-    children_scanner = require("plugin.scanners.children")
+    children_scanner = require("scanners.children")
   end)
 
   describe("scan", function()
@@ -84,7 +84,7 @@ describe("plugin.scanners.children", function()
     end)
 
     it("is registered in scanner registry as 'children'", function()
-      local scanners = require("plugin.scanners")
+      local scanners = require("scanners")
       wezterm._filesystem["/tmp/test"] = { "/tmp/test/child" }
       wezterm._filesystem["/tmp/test/child"] = {}
 

@@ -1,5 +1,3 @@
-local ROOT = (...):match("^(.-)%.") or ...
-
 local M = {}
 
 local registry = {}
@@ -49,9 +47,9 @@ function M.dispatch(source)
   return entries
 end
 
-M.register("self", require(ROOT .. ".scanners.self"))
-M.register("children", require(ROOT .. ".scanners.children"))
-M.register("grandchildren", require(ROOT .. ".scanners.grandchildren"))
-M.register("git_repos", require(ROOT .. ".scanners.git_repos"))
+M.register("self", require("scanners.self"))
+M.register("children", require("scanners.children"))
+M.register("grandchildren", require("scanners.grandchildren"))
+M.register("git_repos", require("scanners.git_repos"))
 
 return M
