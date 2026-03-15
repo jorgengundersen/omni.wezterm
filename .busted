@@ -3,6 +3,6 @@ return {
     ROOT = "spec/",
     pattern = "_spec",
     helper = "spec/spec_helper.lua",
-    lpath = "lua/?.lua;lua/?/init.lua",
+    lpath = "?.lua;?/init.lua",
   },
 }

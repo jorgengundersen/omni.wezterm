@@ -1,9 +1,9 @@
-describe("omni.path", function()
+describe("plugin.path", function()
   local path
 
   before_each(function()
-    package.loaded["omni.path"] = nil
-    path = require("omni.path")
+    package.loaded["plugin.path"] = nil
+    path = require("plugin.path")
   end)
 
   describe("basename", function()

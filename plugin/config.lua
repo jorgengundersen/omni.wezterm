@@ -1,4 +1,5 @@
-local path = require("omni.path")
+local ROOT = (...):match("^(.-)%.") or ...
+local path = require(ROOT .. ".path")
 
 local M = {}
 

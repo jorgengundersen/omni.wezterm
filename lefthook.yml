@@ -5,7 +5,7 @@ pre-commit:
       run: bd hooks run pre-commit
     luacheck:
       glob: "*.lua"
-      run: luacheck lua/ spec/
+      run: luacheck plugin/ spec/
     stylua:
       glob: "*.lua"
-      run: stylua --check lua/ spec/
+      run: stylua --check plugin/ spec/

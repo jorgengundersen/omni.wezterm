@@ -1,10 +1,10 @@
-describe("omni.workspace", function()
+describe("plugin.workspace", function()
   local workspace
 
   before_each(function()
-    package.loaded["omni.workspace"] = nil
+    package.loaded["plugin.workspace"] = nil
     wezterm._reset()
-    workspace = require("omni.workspace")
+    workspace = require("plugin.workspace")
   end)
 
   describe("derive_name", function()

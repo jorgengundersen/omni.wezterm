@@ -1,4 +1,4 @@
-local omni = require("omni")
+local omni = require("plugin")
 
 describe("omni", function()
   before_each(function()

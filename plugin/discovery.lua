@@ -1,4 +1,5 @@
-local scanners = require("omni.scanners")
+local ROOT = (...):match("^(.-)%.") or ...
+local scanners = require(ROOT .. ".scanners")
 
 local M = {}
 

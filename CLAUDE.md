@@ -6,7 +6,7 @@ See `specs/` for detailed design rationale.
 ## Module Structure
 
 ```
-lua/omni/
+plugin/
   init.lua            [orchestration] — wires config → discovery → UI → workspace
   config.lua          [primitive]     — loads/validates TOML config, returns data
   discovery.lua       [primitive]     — runs scanners, deduplicates, sorts (composed primitive)
@@ -21,7 +21,16 @@ lua/omni/
   path.lua            [primitive]     — path expansion, basename, join
 ```
 
-**Orchestration** modules decide flow and sequence work (`omni.init`).
+All modules live under `plugin/` (WezTerm's plugin entry point). Sub-modules
+use the `...` vararg pattern to derive the plugin root at runtime:
+```lua
+local ROOT = (...):match("^(.-)%.") or ...
+local path = require(ROOT .. ".path")
+```
+This avoids `package.path` manipulation and follows WezTerm's recommended
+plugin architecture.
+
+**Orchestration** modules decide flow and sequence work (`plugin.init`).
 **Primitive** modules do work and return output — no opinions on what happens next.
 Keep them separate. `discovery` is a *composed primitive*: it combines scanner
 results but doesn't decide what to do with them.
@@ -53,7 +62,7 @@ Use for: missing paths, unresolvable env vars, empty scan results, child process
 
 ## Adding a New Scanner
 
-1. Create `lua/omni/scanners/{name}.lua`
+1. Create `plugin/scanners/{name}.lua`
 2. Export `M.scan(source) -> ProjectEntry[]`
 3. Register in `scanners/init.lua`
 4. Add to valid types list in `config.lua` validation
@@ -95,6 +104,6 @@ fix(config): validate max_depth is positive integer
 
 ## Tools
 
-- `luacheck lua/ spec/` — lint
-- `stylua --check lua/ spec/` — format check
+- `luacheck plugin/ spec/` — lint
+- `stylua --check plugin/ spec/` — format check
 - `busted spec/` — tests
