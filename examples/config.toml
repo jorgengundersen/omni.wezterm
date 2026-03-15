@@ -1,0 +1,23 @@
+# omni.wezterm example config
+# Copy to ~/.config/omni/config.toml
+
+# Scan for git repositories recursively (up to max_depth levels)
+[[sources]]
+path = "~/projects"
+type = "git_repos"
+max_depth = 3
+
+# List immediate subdirectories as projects
+[[sources]]
+path = "~/work"
+type = "children"
+
+# List directories two levels deep (group/project structure)
+[[sources]]
+path = "~/resources"
+type = "grandchildren"
+
+# Add a single directory as a project
+[[sources]]
+path = "~/dotfiles"
+type = "self"
