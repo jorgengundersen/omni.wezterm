@@ -83,6 +83,12 @@ function wez.serde.toml_decode(_str)
   error("wezterm.serde.toml_decode not stubbed for this input")
 end
 
+wez.plugin = {}
+
+function wez.plugin.list()
+  return wez._plugin_list or {}
+end
+
 wez.action = {}
 
 function wez.action.InputSelector(args)
