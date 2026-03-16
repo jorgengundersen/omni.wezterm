@@ -3,6 +3,7 @@ local omni = require("plugin")
 describe("omni", function()
   before_each(function()
     wezterm._reset()
+    omni._reset_for_tests()
   end)
 
   describe("apply_to_config", function()

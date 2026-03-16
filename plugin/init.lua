@@ -29,12 +29,17 @@ local ui = require("ui")
 local workspace = require("workspace")
 
 local M = {}
+local applied = false
+
+function M._reset_for_tests()
+  applied = false
+end
 
 function M.apply_to_config(config, opts)
-  if config._omni_applied then
+  if applied then
     return
   end
-  config._omni_applied = true
+  applied = true
 
   opts = opts or {}
   local key = opts.key or "p"
