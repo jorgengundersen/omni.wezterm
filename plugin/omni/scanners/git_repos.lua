@@ -1,5 +1,5 @@
 local wezterm = require("wezterm")
-local path = require("path")
+local path = require("omni.path")
 
 local M = {}
 

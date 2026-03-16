@@ -2,8 +2,8 @@ describe("path", function()
   local path
 
   before_each(function()
-    package.loaded["path"] = nil
-    path = require("path")
+    package.loaded["omni.path"] = nil
+    path = require("omni.path")
   end)
 
   describe("basename", function()

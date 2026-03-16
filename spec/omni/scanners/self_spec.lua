@@ -2,10 +2,10 @@ describe("scanners.self", function()
   local self_scanner
 
   before_each(function()
-    package.loaded["scanners.self"] = nil
-    package.loaded["scanners"] = nil
+    package.loaded["omni.scanners.self"] = nil
+    package.loaded["omni.scanners"] = nil
     wezterm._reset()
-    self_scanner = require("scanners.self")
+    self_scanner = require("omni.scanners.self")
   end)
 
   describe("scan", function()
@@ -47,7 +47,7 @@ describe("scanners.self", function()
     end)
 
     it("is registered in scanner registry as 'self'", function()
-      local scanners = require("scanners")
+      local scanners = require("omni.scanners")
       wezterm._filesystem["/tmp/test"] = {}
 
       local entries = scanners.dispatch({ path = "/tmp/test", type = "self" })

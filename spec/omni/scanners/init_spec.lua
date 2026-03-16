@@ -2,8 +2,8 @@ describe("scanners", function()
   local scanners
 
   before_each(function()
-    package.loaded["scanners"] = nil
-    scanners = require("scanners")
+    package.loaded["omni.scanners"] = nil
+    scanners = require("omni.scanners")
   end)
 
   describe("dispatch", function()
@@ -89,13 +89,13 @@ describe("scanners", function()
   describe("auto-registration", function()
     before_each(function()
       -- Clear all scanner modules so they re-register on require
-      package.loaded["scanners"] = nil
-      package.loaded["scanners.self"] = nil
-      package.loaded["scanners.children"] = nil
-      package.loaded["scanners.grandchildren"] = nil
-      package.loaded["scanners.git_repos"] = nil
+      package.loaded["omni.scanners"] = nil
+      package.loaded["omni.scanners.self"] = nil
+      package.loaded["omni.scanners.children"] = nil
+      package.loaded["omni.scanners.grandchildren"] = nil
+      package.loaded["omni.scanners.git_repos"] = nil
       wezterm._reset()
-      scanners = require("scanners")
+      scanners = require("omni.scanners")
     end)
 
     it("registers self, children, grandchildren, and git_repos on load", function()

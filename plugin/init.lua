@@ -21,10 +21,10 @@ if wezterm.plugin then
   end
 end
 
-local config_mod = require("config")
-local discovery = require("discovery")
-local ui = require("ui")
-local workspace = require("workspace")
+local config_mod = require("omni.config")
+local discovery = require("omni.discovery")
+local ui = require("omni.ui")
+local workspace = require("omni.workspace")
 
 local M = {}
 local applied = false

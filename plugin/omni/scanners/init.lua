@@ -47,9 +47,9 @@ function M.dispatch(source)
   return entries
 end
 
-M.register("self", require("scanners.self"))
-M.register("children", require("scanners.children"))
-M.register("grandchildren", require("scanners.grandchildren"))
-M.register("git_repos", require("scanners.git_repos"))
+M.register("self", require("omni.scanners.self"))
+M.register("children", require("omni.scanners.children"))
+M.register("grandchildren", require("omni.scanners.grandchildren"))
+M.register("git_repos", require("omni.scanners.git_repos"))
 
 return M

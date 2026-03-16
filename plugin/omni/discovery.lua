@@ -1,4 +1,4 @@
-local scanners = require("scanners")
+local scanners = require("omni.scanners")
 
 local M = {}
 

@@ -4,11 +4,11 @@ describe("discovery", function()
 
   before_each(function()
     -- Clear both modules so discovery gets a fresh scanners instance
-    package.loaded["scanners"] = nil
-    package.loaded["discovery"] = nil
+    package.loaded["omni.scanners"] = nil
+    package.loaded["omni.discovery"] = nil
 
-    scanners = require("scanners")
-    discovery = require("discovery")
+    scanners = require("omni.scanners")
+    discovery = require("omni.discovery")
   end)
 
   describe("discover", function()

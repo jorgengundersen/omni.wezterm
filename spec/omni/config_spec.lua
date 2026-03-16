@@ -2,9 +2,9 @@ describe("config", function()
   local config
 
   before_each(function()
-    package.loaded["config"] = nil
+    package.loaded["omni.config"] = nil
     wezterm._reset()
-    config = require("config")
+    config = require("omni.config")
   end)
 
   describe("validate", function()

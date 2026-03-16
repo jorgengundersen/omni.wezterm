@@ -7,28 +7,26 @@ See `specs/` for detailed design rationale.
 
 ```
 plugin/
-  init.lua            [orchestration] — wires config → discovery → UI → workspace
-  config.lua          [primitive]     — loads/validates TOML config, returns data
-  discovery.lua       [primitive]     — runs scanners, deduplicates, sorts (composed primitive)
-  scanners/
-    init.lua           — scanner registry
-    git_repos.lua      — recursive .git finder
-    children.lua       — immediate subdirectories
-    grandchildren.lua  — two-level deep subdirectories
-    self.lua           — single directory entry
-  workspace.lua       [primitive]     — name derivation, workspace switching
-  ui.lua              [primitive]     — InputSelector construction
-  path.lua            [primitive]     — path expansion, basename, join
+  init.lua              [orchestration] — wires config → discovery → UI → workspace
+  omni/
+    config.lua          [primitive]     — loads/validates TOML config, returns data
+    discovery.lua       [primitive]     — runs scanners, deduplicates, sorts (composed primitive)
+    scanners/
+      init.lua           — scanner registry
+      git_repos.lua      — recursive .git finder
+      children.lua       — immediate subdirectories
+      grandchildren.lua  — two-level deep subdirectories
+      self.lua           — single directory entry
+    workspace.lua       [primitive]     — name derivation, workspace switching
+    ui.lua              [primitive]     — InputSelector construction
+    path.lua            [primitive]     — path expansion, basename, join
 ```
 
-All modules live under `plugin/` (WezTerm's plugin entry point). Sub-modules
-use the `...` vararg pattern to derive the plugin root at runtime:
-```lua
-local ROOT = (...):match("^(.-)%.") or ...
-local path = require(ROOT .. ".path")
-```
-This avoids `package.path` manipulation and follows WezTerm's recommended
-plugin architecture.
+`plugin/init.lua` is WezTerm's plugin entry point. All sub-modules live under
+`plugin/omni/` and are required with the `omni.` namespace prefix (e.g.,
+`require("omni.config")`). This prevents module name collisions with other
+plugins. The entry point uses `wezterm.plugin.list()` to register the plugin
+directory in `package.path` at load time.
 
 **Orchestration** modules decide flow and sequence work (`plugin.init`).
 **Primitive** modules do work and return output — no opinions on what happens next.
@@ -62,10 +60,10 @@ Use for: missing paths, unresolvable env vars, empty scan results, child process
 
 ## Adding a New Scanner
 
-1. Create `plugin/scanners/{name}.lua`
+1. Create `plugin/omni/scanners/{name}.lua`
 2. Export `M.scan(source) -> ProjectEntry[]`
-3. Register in `scanners/init.lua`
-4. Add to valid types list in `config.lua` validation
+3. Register in `omni/scanners/init.lua`
+4. Add to valid types list in `omni/config.lua` validation
 5. Create `spec/omni/scanners/{name}_spec.lua`
 6. Scanner must return entries with all 3 fields: `id`, `label`, `workspace_name`
 

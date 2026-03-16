@@ -1,5 +1,5 @@
 -- Verify the example config file is valid TOML that config.validate accepts
-local config = require("config")
+local config = require("omni.config")
 
 describe("examples/config.toml", function()
   before_each(function()

@@ -3,16 +3,16 @@ describe("plugin entry point", function()
     -- Clear all modules that live under plugin/
     local plugin_modules = {
       "plugin",
-      "config",
-      "discovery",
-      "ui",
-      "workspace",
-      "path",
-      "scanners",
-      "scanners.self",
-      "scanners.children",
-      "scanners.grandchildren",
-      "scanners.git_repos",
+      "omni.config",
+      "omni.discovery",
+      "omni.ui",
+      "omni.workspace",
+      "omni.path",
+      "omni.scanners",
+      "omni.scanners.self",
+      "omni.scanners.children",
+      "omni.scanners.grandchildren",
+      "omni.scanners.git_repos",
     }
     for _, mod in ipairs(plugin_modules) do
       package.loaded[mod] = nil
