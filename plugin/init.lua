@@ -1,25 +1,23 @@
 local wezterm = require("wezterm")
-local plugin_name = ...
-local sep = package.config:sub(1, 1)
 
--- Find our plugin directory by substituting our module name into
--- each package.path template and looking for one that resolves to
--- .../plugin/init.lua (our own entry point).
-for template in package.path:gmatch("[^;]+") do
-  local resolved = template:gsub("%?", (plugin_name:gsub("%%", "%%%%")))
-  local mod_dir = resolved:match("^(.+[/\\]plugin)[/\\]init%.lua$")
-    or resolved:match("^(plugin)[/\\]init%.lua$")
-  if mod_dir then
-    package.path = mod_dir
-      .. sep
-      .. "?.lua;"
-      .. mod_dir
-      .. sep
-      .. "?"
-      .. sep
-      .. "init.lua;"
-      .. package.path
-    break
+-- Register sub-module paths so require("config"), require("scanners"), etc. resolve
+-- to files inside our plugin directory. In tests, busted's lpath handles this instead.
+if wezterm.plugin then
+  local sep = package.config:sub(1, 1)
+  for _, p in ipairs(wezterm.plugin.list()) do
+    if p.url:find("omni.wezterm", 1, true) then
+      local dir = p.plugin_dir .. sep .. "plugin"
+      package.path = dir
+        .. sep
+        .. "?.lua;"
+        .. dir
+        .. sep
+        .. "?"
+        .. sep
+        .. "init.lua;"
+        .. package.path
+      break
+    end
   end
 end
 
