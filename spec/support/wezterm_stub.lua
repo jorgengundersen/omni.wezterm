@@ -98,5 +98,6 @@ function wez.action_callback(fn)
 end
 
 _G.wezterm = wez
+package.loaded["wezterm"] = wez
 
 return wez

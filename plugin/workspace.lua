@@ -1,3 +1,5 @@
+local wezterm = require("wezterm")
+
 local M = {}
 
 function M.derive_name(label)

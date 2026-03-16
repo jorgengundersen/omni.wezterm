@@ -1,3 +1,4 @@
+local wezterm = require("wezterm")
 local path = require("path")
 
 local M = {}

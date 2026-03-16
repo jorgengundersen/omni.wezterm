@@ -1,4 +1,4 @@
-local wezterm = _G.wezterm
+local wezterm = require("wezterm")
 local plugin_name = ...
 local sep = package.config:sub(1, 1)
 
